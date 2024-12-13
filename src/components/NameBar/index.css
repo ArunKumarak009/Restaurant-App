@@ -1,0 +1,15 @@
+.btn-category {
+  border: none;
+  background-color: transparent;
+  color: black;
+  font-family: 'Roboto';
+  font-size: 14px;
+  font-weight: 500;
+  width: 150px;
+}
+.btn-active {
+  color: orange;
+}
+
+.text-name-category {
+}

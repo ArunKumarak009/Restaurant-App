@@ -1,0 +1,44 @@
+.Header-container {
+  display: flex;
+  float: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-icon-container {
+  position: relative;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  background-color: rgb(255, 81, 0);
+  color: white;
+  height: 25px;
+  width: 25px;
+  text-align: center;
+  border-radius: 20px;
+}
+
+.cart-icon {
+  font-size: 35px;
+}
+
+.my-orders-container {
+  display: flex;
+
+  align-items: center;
+}
+
+.text-my-orders {
+  color: black;
+  font-size: 20px;
+  font-family: 'Roboto';
+}
+
+@media Screen and (max-width: 576px) {
+  .text-my-orders {
+    display: none;
+  }
+}
