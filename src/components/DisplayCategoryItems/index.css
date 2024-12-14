@@ -66,3 +66,48 @@
     display: none;
   }
 }
+
+.food-type-container {
+  height: 30px;
+  width: 30px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.food-type-container-veg {
+  border: 2px solid green;
+}
+
+.food-type-container-non-veg {
+  border: 2px solid red;
+}
+
+.type-and-description-container {
+  display: flex;
+  justify-content: flex-start;
+  column-gap: 10px;
+}
+
+.dish-name {
+  font-size: 30px;
+  font-family: 'Roboto';
+  margin: 0;
+}
+.dot-type {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+.dot-type-veg {
+  background-color: green;
+}
+
+.dot-type-non-veg {
+  background-color: red;
+}
+
+.dish-price {
+  margin: 0;
+}

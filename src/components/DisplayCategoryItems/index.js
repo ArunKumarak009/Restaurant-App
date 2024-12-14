@@ -15,11 +15,10 @@ const DisplayCategoryItems = props => {
     dishAvailability,
     dishCalories,
     dishDescription,
-
+    dishType,
     dishImage,
     dishName,
     dishPrice,
-
     dishCurrency,
   } = itemDetails
 
@@ -49,20 +48,31 @@ const DisplayCategoryItems = props => {
     </div>
   )
 
+  const typeClassNameBox =
+    dishType === 2 ? 'food-type-container-veg' : 'food-type-container-non-veg'
+  const typeClassNameDot = dishType === 2 ? 'dot-type-veg' : 'dot-type-non-veg'
+
   return (
     <li className="card-item">
       <div className="details-container">
-        <div className="item-description-container">
-          <h1 className="dish-name">{dishName}</h1>
-          <p className="dish-price">
-            {dishCurrency} {dishPrice}
-          </p>
-          <p className="dish-desption">{dishDescription}</p>
-          {displayButtons}
+        <div className="type-and-description-container">
+          <div className={`food-type-container ${typeClassNameBox}`}>
+            <p className={`dot-type ${typeClassNameDot}`}> </p>
+          </div>
 
-          {custamizeText}
-          <p className="not-available-text">{notAvailableText}</p>
+          <div className="item-description-container">
+            <h1 className="dish-name">{dishName}</h1>
+            <p className="dish-price">
+              {dishCurrency} {dishPrice}
+            </p>
+            <p className="dish-desption">{dishDescription}</p>
+            {displayButtons}
+
+            {custamizeText}
+            <p className="not-available-text">{notAvailableText}</p>
+          </div>
         </div>
+
         <p className="calories-text">{dishCalories} calories</p>
         <img src={dishImage} alt="item" className="item-image" />
       </div>
