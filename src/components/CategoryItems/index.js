@@ -1,56 +1,117 @@
-import CartContext from '../../context/CartContext'
-import DisplayCategoryItems from '../DisplayCategoryItems'
 import './index.css'
+import CartContext from '../../context/CartContext'
+import Quantity from '../Quantity'
 
-const CategoryItems = () => (
-  <CartContext.Consumer>
-    {value => {
-      const changeToCamelCaseForCategoryDishes = obj => ({
-        addonCat: obj.addonCat,
-        dishAvailability: obj.dish_Availability,
-        dishType: obj.dish_Type,
+const CategoryItems = props => {
+  const {eachItem, categoryId, onClickMinus, onClickPlus, updateData} = props
 
-        dishCalories: obj.dish_calories,
+  const renderItems = () => {
+    const onClickPlusInCategoryItemsFunction = (dishId, quantity) => {
+      onClickPlus(dishId, quantity, categoryId)
+    }
 
-        dishCurrency: obj.dish_currency,
+    const onClickMinusInCategoryItemsFunction = (dishId, quantity) => {
+      onClickMinus(dishId, quantity, categoryId)
+    }
 
-        dishDescription: obj.dish_description,
+    return (
+      <CartContext.Consumer>
+        {value => {
+          const {addCartItem} = value
+          if (eachItem !== undefined) {
+            return (
+              <ul>
+                {eachItem.map(each => {
+                  const {
+                    dishId,
+                    addonCat,
+                    dishAvailability,
+                    dishCalories,
+                    dishCurrency,
+                    dishDescription,
+                    dishImage,
+                    dishName,
+                    dishPrice,
+                    nextUrl,
+                    dishQuantity,
+                  } = each
 
-        dishId: obj.dish_id,
-        dishImage: obj.dish_image,
+                  const onClickAddToCart = () => {
+                    addCartItem(each, dishId, categoryId)
+                    updateData(dishId, dishQuantity)
+                  }
 
-        dishName: obj.dish_name,
+                  return (
+                    <li className="category-list-item" key={dishId}>
+                      <img src={nextUrl} alt="isVeg" />
+                      <div className="right-container">
+                        <div className="text-container">
+                          <h1>{dishName}</h1>
+                          <p>
+                            {dishCurrency}
+                            {'  '}
+                            {dishPrice}
+                          </p>
+                          <p>{dishDescription}</p>
+                          {dishAvailability ? (
+                            <Quantity
+                              key={dishId}
+                              item={each}
+                              quantity={dishQuantity}
+                              dishId={dishId}
+                              onClickPlusInCategory={
+                                onClickPlusInCategoryItemsFunction
+                              }
+                              onClickMinusInCategory={
+                                onClickMinusInCategoryItemsFunction
+                              }
+                            />
+                          ) : (
+                            <p className="not-available">Not available</p>
+                          )}
 
-        dishPrice: obj.dish_price,
-      })
+                          {addonCat.length !== 0 ? (
+                            <p className="customization-button">
+                              Customizations available
+                            </p>
+                          ) : (
+                            ''
+                          )}
 
-      const {menuCategory, activeCategory} = value
+                          {dishAvailability && dishQuantity > 0 ? (
+                            <button
+                              type="button"
+                              className="add-to-cart"
+                              onClick={onClickAddToCart}
+                            >
+                              ADD TO CART
+                            </button>
+                          ) : (
+                            ''
+                          )}
+                        </div>
+                        <p className="dish_calories">
+                          {dishCalories} {'  '} calories
+                        </p>
+                        <img
+                          src={dishImage}
+                          className="dish_image"
+                          alt="item"
+                        />
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            )
+          }
+          return ''
+        }}
+      </CartContext.Consumer>
+    )
+  }
 
-      const filter = menuCategory.filter(
-        eachItem => eachItem.menuName === activeCategory,
-      )
-      console.log(menuCategory)
-      const {categoryDishes} = filter[0]
-
-      const updatedCategoryDishes = categoryDishes.map(eachItem =>
-        changeToCamelCaseForCategoryDishes(eachItem),
-      )
-      console.log(updatedCategoryDishes)
-
-      return (
-        <div>
-          <ul className="items-card">
-            {updatedCategoryDishes.map(eachItem => (
-              <DisplayCategoryItems
-                key={eachItem.dishId}
-                itemDetails={eachItem}
-              />
-            ))}
-          </ul>
-        </div>
-      )
-    }}
-  </CartContext.Consumer>
-)
+  return <>{renderItems(eachItem)}</>
+}
 
 export default CategoryItems

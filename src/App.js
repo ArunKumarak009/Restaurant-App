@@ -1,131 +1,127 @@
 import {Component} from 'react'
+
+import {BrowserRouter, Switch, Route} from 'react-router-dom'
+import Home from './components/Home'
+
+import Login from './components/Login'
 import CartContext from './context/CartContext'
-import Header from './components/Header'
-import Item from './components/Item'
-import CategoryItems from './components/CategoryItems'
+import Cart from './components/Cart'
+import ProtectedRoute from './components/ProtectedRoute'
+import NotFound from './components/NotFound'
 
-import './App.css'
-
-// write your code here
 class App extends Component {
-  state = {
-    cartCount: 0,
-    data: [],
-    menuCategory: [],
-    activeCategory: '',
-    loading: true,
-  }
+  state = {cartList: [], title: ''}
 
-  // getConvertedCategoryDishes = obj => {
-  //   return {
-  //     addonCat: obj.addonCat,
-  //     dishAvailability: obj.dish_Availability,
-  //     dishType: obj.dish_Type,
-  //     dishCalories: obj.dish_calories,
-  //     dishCurrency: obj.dish_currency,
-  //     dishDescription: obj.dish_description,
-  //     dishId: obj.dish_id,
-  //     dishImage: obj.dish_image,
-  //     dishName: obj.dish_name,
-  //     dishPrice: obj.dish_price,
-  //   }
-  // }
+  addCartItem = (item, id, mId) => {
+    const {cartList} = this.state
+    const isExist = cartList.filter(each => each.dishId === id)
+    console.log('is exist list=', isExist)
+    console.log('dish id=', id)
 
-  componentDidMount() {
-    this.getItems()
-  }
+    if (isExist.length !== 0) {
+      const dish = isExist.pop()
+      const index = cartList.findIndex(each => each.dishId === id)
+      console.log('index=', index)
 
-  getItems = async () => {
-    const response = await fetch(
-      'https://apis2.ccbp.in/restaurant-app/restaurant-menu-list-details',
-      {method: 'GET'},
-    )
-    if (response.ok) {
-      const data = await response.json()
-      console.log(data)
-
-      const updatedData = this.convertToCamelCase(data[0])
-
-      const categoryList = this.getCategoryList(updatedData.tableMenuList)
+      const {dishQuantity} = dish
+      const updatedQuantity = dishQuantity + 1
+      const newDish = {...dish, dishQuantity: updatedQuantity}
+      cartList.splice(index, 1, newDish)
 
       this.setState({
-        data: updatedData,
-        menuCategory: categoryList,
-        activeCategory: categoryList[0].menuName,
-        loading: false,
+        cartList: [...cartList],
+      })
+    } else {
+      this.setState({
+        cartList: [...cartList, {...item, menuCategoryId: mId}],
       })
     }
   }
 
-  incrementCartCount = () => {
-    this.setState(prevState => ({
-      cartCount: prevState.cartCount + 1,
-    }))
+  updateTitle = title => {
+    this.setState({
+      title,
+    })
   }
 
-  decrementCartCount = () => {
-    const {cartCount} = this.state
-    if (cartCount >= 1) {
-      this.setState(prevState => ({
-        cartCount: prevState.cartCount - 1,
-      }))
+  removeAllCartItems = () => {
+    this.setState({
+      cartList: [],
+    })
+  }
+
+  decrementCartItemQuantity = id => {
+    const {cartList} = this.state
+    const dish = cartList.filter(each => each.dishId === id)
+    const dt = dish[0].dishQuantity
+    console.log('dish and its quantity=', dish, dt)
+    if (dt === 1) {
+      const index = cartList.findIndex(each => each.dishId === id)
+      cartList.splice(index, 1)
+      this.setState({
+        cartList,
+      })
+    } else {
+      this.setState({
+        cartList: cartList.map(each => {
+          if (each.dishId === id) {
+            const {dishQuantity} = each
+            return {...each, dishQuantity: dishQuantity - 1}
+          }
+          return each
+        }),
+      })
     }
   }
 
-  getCategoryList = list =>
-    list.map(eachItem => this.convertCategoryToCamelCase(eachItem))
+  incrementCartItemQuantity = id => {
+    const {cartList} = this.state
+    this.setState({
+      cartList: cartList.map(each => {
+        if (each.dishId === id) {
+          const {dishQuantity} = each
+          return {...each, dishQuantity: dishQuantity + 1}
+        }
+        return each
+      }),
+    })
+  }
 
-  convertCategoryToCamelCase = obj => ({
-    categoryDishes: obj.category_dishes,
-    menuName: obj.menu_category,
-    menuCategoryId: obj.menu_category_id,
-  })
-
-  convertToCamelCase = obj => ({
-    tableMenuList: obj.table_menu_list,
-    branchName: obj.branch_name,
-    restaurantName: obj.restaurant_name,
-  })
-
-  changeActiveCategory = name => {
-    this.setState({activeCategory: name})
+  removeCartItem = id => {
+    const {cartList} = this.state
+    this.setState({
+      cartList: cartList.filter(each => each.dishId !== id),
+    })
   }
 
   render() {
-    const {cartCount, data, menuCategory, activeCategory, loading} = this.state
-    console.log(activeCategory)
-    // const filtered = menuCategory.filter(
-    //   eachItem => eachItem.menuName === activeCategory,
-    // )
-
-    // const convertedCategoryDishestoCamel = categoryDishes.map(eachItem =>
-    //   this.getConvertedCategoryDishes(eachItem),
-    // )
-
+    const {cartList, title} = this.state
+    console.log('cart list=', cartList)
     return (
-      <CartContext.Provider
-        value={{
-          cartCount,
-          data,
-          menuCategory,
-          activeCategory,
-          incrementCartCount: this.incrementCartCount,
-          decrementCartCount: this.decrementCartCount,
-          changeActiveCategory: this.changeActiveCategory,
-        }}
-      >
-        <div className="app-container">
-          {loading ? (
-            <div>....</div>
-          ) : (
-            <>
-              <Header />
-              <Item />
-              <CategoryItems />
-            </>
-          )}
-        </div>
-      </CartContext.Provider>
+      <>
+        <CartContext.Provider
+          value={{
+            cartList,
+            title,
+            updateTitle: () => {},
+            decrementCartItemQuantity: this.decrementCartItemQuantity,
+            addCartItem: this.addCartItem,
+            removeAllCartItems: this.removeAllCartItems,
+            removeCartItem: this.removeCartItem,
+            incrementCartItemQuantity: this.incrementCartItemQuantity,
+          }}
+        >
+          <BrowserRouter>
+            <Switch>
+              <Route path="/login" component={Login} />
+              <ProtectedRoute exact path="/" component={Home} />
+              <ProtectedRoute exact path="/cart" component={Cart} />
+
+              <Route component={NotFound} />
+            </Switch>
+          </BrowserRouter>
+        </CartContext.Provider>
+      </>
     )
   }
 }
